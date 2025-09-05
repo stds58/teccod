@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Поиск в OpenSearch</title>
+  <style>
+    body { font-family: sans-serif; margin: 40px; }
+    input[type="text"] { width: 300px; padding: 8px; }
+    button { padding: 8px 16px; background: #007acc; color: white; border: none; }
+    .result { margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>🔍 Поиск по документам</h2>
+  <form action="/search" method="get" id="search-form">
+    <input type="text" name="q" placeholder="Ключевое слово" required><br><br>
+
+    <label><input type="radio" name="type" value="" checked> Все типы</label><br>
+    <label><input type="radio" name="type" value="article"> Статьи</label><br>
+    <label><input type="radio" name="type" value="blog"> Блоги</label><br>
+    <label><input type="radio" name="type" value="news"> Новости</label><br>
+    <label><input type="radio" name="type" value="tutorial"> Уроки</label><br><br>
+
+    <button type="submit">Найти</button>
+  </form>
+
+  <div id="results"></div>
+
+  <script>
+    const form = document.getElementById("search-form");
+    const resultsDiv = document.getElementById("results");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const params = new URLSearchParams(formData);
+
+      const res = await fetch(`/search?${params}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        resultsDiv.innerHTML = data.map(r =>
+          `<div class="result"><b>${r.title}</b><br><small>${r.snippet}</small></div>`
+        ).join("");
+      } else {
+        resultsDiv.innerHTML = `<div class="error">Ошибка: ${data.error}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
