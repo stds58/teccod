@@ -1,7 +1,4 @@
 
-pip install uv
-uv init
-
 Установка uv: 
     pip install uv
     uv init
@@ -19,11 +16,24 @@ uv init
 Все пакеты устанавливаются в virtual env, расположенный в .venv
 
 
-docker-compose down -v
-docker-compose up --build
+docker-compose down -v fastapi
+docker-compose build
+docker-compose up
+docker-compose up --build fastapi
+
+docker inspect --format='{{.State.Health}}' opensearch
 
 http://localhost:8000/search?q=Python
 http://localhost:8000/search?q=Docker&type=tutorial
+http://localhost:8000/api/search
 
+###########################
+
+удалить
+from app.dependencies.get_db import get_opensearch
+
+
+
+########################
 
 

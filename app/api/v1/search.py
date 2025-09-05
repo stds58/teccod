@@ -1,37 +1,54 @@
-from fastapi import APIRouter, Query, Depends
-from typing import Optional
-from .opensearch_client import client
+from pathlib import Path
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
+from app.schemas.search import SearchRequest, SearchResponse
+from app.services.search import search_documents
+from fastapi.templating import Jinja2Templates
 
-router = APIRouter()
 
-@router.get("/search")
-def search(
-    q: str = Query(..., min_length=1),
-    content_type: Optional[str] = None,
-    opensearch = Depends(get_opensearch)
+
+# pylint: disable=duplicate-code
+V1_DIR = Path(__file__).resolve().parent
+API_DIR = V1_DIR.parent
+APP_DIR = API_DIR.parent
+TEMPLATES_DIR = APP_DIR / "templates"
+# pylint: enable=duplicate-code
+
+
+router = APIRouter(tags=["Фронтенд"])
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+
+# @router.post("/search", response_model=SearchResponse)
+# def search_endpoint(request: SearchRequest):
+#     try:
+#         results = search_documents(query=request.query, content_type=request.content_type)
+#         return SearchResponse(results=results)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Ошибка поиска: {str(e)}")
+
+# 🟩 Главная страница — отдаём HTML форму
+@router.get("/")
+def get_search_page(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+# 🟦 API: Поиск через GET (для формы)
+@router.get("/search", response_model=SearchResponse)
+def search_api(
+    request: Request,
+    q: str = Query(..., alias="q", description="Ключевое слово для поиска"),
+    type: str = Query(None, alias="type", description="Фильтр по типу контента")
 ):
-    query = {
-        "bool": {
-            "must": {
-                "multi_match": {
-                    "query": q,
-                    "fields": ["title", "content"]
-                }
-            },
-            "filter": []
-        }
-    }
-    if content_type:
-        query["bool"]["filter"].append({"term": {"content_type": content_type}})
+    """
+    Обработка GET-запроса из формы.
+    Параметры:
+    - q: строка поиска
+    - type: content_type (может быть пустым)
+    """
+    try:
+        results = search_documents(query=q, content_type=type if type else None)
+        return SearchResponse(results=results)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка поиска: {str(e)}")
 
-    result = opensearch.search(index="documents", body={"query": query})
-    hits = []
-    for hit in result["hits"]["hits"]:
-        source = hit["_source"]
-        snippet = (source["content"][:50] + "...") if len(source["content"]) > 50 else source["content"]
-        hits.append({
-            "title": source["title"],
-            "snippet": snippet
-        })
 
-    return {"results": hits}

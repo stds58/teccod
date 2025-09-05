@@ -10,13 +10,16 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/opt/backend/app
-    depends_on:
-      opensearch:
-        condition: service_healthy
+#    depends_on:
+#      opensearch:
+#        condition: service_healthy
     environment:
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       - OPENSEARCH_HOST=${OPENSEARCH_HOST}
       - OPENSEARCH_USER=${OPENSEARCH_USER}
       - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
+      - INDEX_NAME=${INDEX_NAME}
+      - CONTENT_TYPE_VALUESX=${CONTENT_TYPE_VALUESX}
     networks:
       - app-network
 
