@@ -15,14 +15,14 @@
 <body>
   <h2>🔍 Поиск по документам</h2>
   <form action="/search" method="get" id="search-form">
-    <input type="text" name="q" placeholder="Введите слово для поиска" required autofocus><br><br>
+    <input type="text" name="title" placeholder="Введите слово для поиска" autofocus><br><br>
 
     <strong>Тип контента:</strong><br>
-    <label><input type="radio" name="type" value="" checked> Все типы</label><br>
-    <label><input type="radio" name="type" value="article"> Статьи</label><br>
-    <label><input type="radio" name="type" value="blog"> Блоги</label><br>
-    <label><input type="radio" name="type" value="news"> Новости</label><br>
-    <label><input type="radio" name="type" value="tutorial"> Уроки</label><br><br>
+    <label><input type="radio" name="content_type" value="" checked> Все типы</label><br>
+    <label><input type="radio" name="content_type" value="article"> Статьи</label><br>
+    <label><input type="radio" name="content_type" value="blog"> Блоги</label><br>
+    <label><input type="radio" name="content_type" value="news"> Новости</label><br>
+    <label><input type="radio" name="content_type" value="tutorial"> Уроки</label><br><br>
 
     <button type="submit">🔍 Найти</button>
   </form>
@@ -42,10 +42,14 @@
         const res = await fetch(`/api/search?${params}`);
         const data = await res.json();
         if (res.ok) {
-          resultsDiv.innerHTML = data.results.map(r =>
+          resultsDiv.innerHTML = data.map(r =>
             `<div class="result">
-              <b>${r.title}</b><br>
-              <small>${r.snippet}</small>
+            <b>params: $${params}</b><br>
+              <b>title: ${r.title}</b><br>
+              <b>content: ${r.content}</b><br>
+              <b>content_type: ${r.content_type}</b><br>
+              <b>_id: ${r._id}</b><br>
+              <b>._score: ${r._score}</b><br>
             </div>`
           ).join("");
         } else {

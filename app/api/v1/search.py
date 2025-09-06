@@ -20,11 +20,7 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
 @router.get("/search", response_model=list[SSearchDocument], summary="Поиск документов")
-def api_search(filters: SSearchFilter = Depends(),
-    title: Optional[str] = Query(None, description="Поиск по заголовку"),
-    content: Optional[str] = Query(None, description="Поиск по содержанию"),
-    content_type: Optional[str] = Query(None, description="Фильтр по типу контента")
-):
+def api_search(filters: SSearchFilter = Depends()):
     """
     Выполняет поиск документов в OpenSearch.
     Можно фильтровать по title, content и content_type.
