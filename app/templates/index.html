@@ -39,9 +39,8 @@
       const params = new URLSearchParams(formData);
 
       try {
-        const res = await fetch(`/search?${params}`);
+        const res = await fetch(`/api/search?${params}`);
         const data = await res.json();
-
         if (res.ok) {
           resultsDiv.innerHTML = data.results.map(r =>
             `<div class="result">

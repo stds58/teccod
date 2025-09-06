@@ -1,6 +1,7 @@
 from pathlib import Path
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
-from app.schemas.search import SearchRequest, SearchResponse
+from app.schemas.search import SSearchFilter, SSearchAdd, SSearchDocument
 from app.services.search import search_documents
 from fastapi.templating import Jinja2Templates
 
@@ -18,37 +19,22 @@ router = APIRouter(tags=["Фронтенд"])
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
-# @router.post("/search", response_model=SearchResponse)
-# def search_endpoint(request: SearchRequest):
-#     try:
-#         results = search_documents(query=request.query, content_type=request.content_type)
-#         return SearchResponse(results=results)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Ошибка поиска: {str(e)}")
-
-# 🟩 Главная страница — отдаём HTML форму
-@router.get("/")
-def get_search_page(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
-# 🟦 API: Поиск через GET (для формы)
-@router.get("/search", response_model=SearchResponse)
-def search_api(
-    request: Request,
-    q: str = Query(..., alias="q", description="Ключевое слово для поиска"),
-    type: str = Query(None, alias="type", description="Фильтр по типу контента")
+@router.get("/search", response_model=list[SSearchDocument], summary="Поиск документов")
+def api_search(filters: SSearchFilter = Depends(),
+    title: Optional[str] = Query(None, description="Поиск по заголовку"),
+    content: Optional[str] = Query(None, description="Поиск по содержанию"),
+    content_type: Optional[str] = Query(None, description="Фильтр по типу контента")
 ):
     """
-    Обработка GET-запроса из формы.
-    Параметры:
-    - q: строка поиска
-    - type: content_type (может быть пустым)
+    Выполняет поиск документов в OpenSearch.
+    Можно фильтровать по title, content и content_type.
     """
-    try:
-        results = search_documents(query=q, content_type=type if type else None)
-        return SearchResponse(results=results)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка поиска: {str(e)}")
+    results = search_documents(filters=filters)
+    return results
 
+
+# @router.post("", summary="Create order nanny for young")
+# async def create_nanny(request: Request, data: SFormFields, session: AsyncSession = Depends(connection())):
+#     row = await add_one_search(request=request, data=data, session=session)
+#     return {"data": row}
 

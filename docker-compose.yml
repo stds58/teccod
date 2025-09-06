@@ -10,9 +10,6 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/opt/backend/app
-#    depends_on:
-#      opensearch:
-#        condition: service_healthy
     environment:
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       - OPENSEARCH_HOST=${OPENSEARCH_HOST}
@@ -20,6 +17,9 @@ services:
       - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
       - INDEX_NAME=${INDEX_NAME}
       - CONTENT_TYPE_VALUESX=${CONTENT_TYPE_VALUESX}
+    depends_on:
+      opensearch:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -41,10 +41,10 @@ services:
       - app-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -k -u 'admin:${OPENSEARCH_PASSWORD}' https://localhost:9200 >/dev/null; if [[ $$? == 52 ]] || [[ $$? == 0 ]]; then exit 0; else exit 1; fi"]
+      test: ["CMD-SHELL", "curl -k -u admin:${OPENSEARCH_PASSWORD} --silent --fail https://localhost:9200/_cluster/health || exit 1"]
       interval: 30s
-      timeout: 10s
-      retries: 10
+      timeout: 30s
+      retries: 3
 
 volumes:
   opensearch-data:
