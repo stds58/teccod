@@ -1,43 +1,28 @@
+### Задание:
+1. Создать индекс в OpenSearch с тремя полями:
+- title (текст)
+- content (текст)
+- content_type (4 варианта)
 
-Установка uv: 
+2. Написать скрипт на Python, который:
+- Подключается к локальному OpenSearch (лучше через Docker).
+- Загружает в индекс несколько документов (рандомные, достаточно 3–5).
+- Реализует функцию поиска по ключевому слову, которая ищет и в title, и в content.
+- Функция возвращает список словарей с полями: title, snippet (первые 50 символов текста content).
+- Добавляет фильтр: возвращать только документы, совпадающие по radiobutton content_type.
 
-    pip install uv
-    uv init не надо
+3. Деплой
+- docker-compose с запуском OpenSearch и веб-приложения
 
-Добавить зависимости: 
+### из файла .env.example сделайте .env со своими настройками
+### соберите и запустите Docker контейнеры
 
-    uv add <package_name_1> <package_name_2>
+    docker-compose up --build
 
-Добавить зависимость в группу (чтобы можно было устанавливать отдельной командой опциональные пакеты):
+### веб версия
 
-    uv add --group <group_name>  <package_name_1> <package_name_2>
+http://localhost:8000
 
-Установить зависимости:
+### апи
 
-    uv sync
-    uv sync --group <group_name>
-
-Все пакеты устанавливаются в virtual env, расположенный в .venv
-
-
-    docker-compose down -v fastapi
-    docker-compose build
-    docker-compose up
-    docker-compose up --build fastapi
-
-    docker inspect --format='{{.State.Health}}' opensearch
-
-http://localhost:8000/api/search
 http://localhost:8000/api/docs
-
-###########################
-
-удалить
-
-    from app.dependencies.get_db import get_opensearch
-
-
-
-########################
-
-

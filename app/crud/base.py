@@ -56,9 +56,7 @@ class BaseDAO(Generic[FilterSchemaType, ModelType]):
             source = hit["_source"]
             try:
                 doc = cls.pydantic_model(
-                    id=hit.get("_id"),
-                    score=hit.get("_score"),
-                    **source,  # распаковываем остальные поля из source
+                    **source,
                 )
                 results.append(doc)
             except Exception as e:
