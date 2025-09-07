@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.search import router as search_router
+from app.api.v1.item import router as search_router
 
 
 v1_router = APIRouter()

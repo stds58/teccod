@@ -1,10 +1,11 @@
 import logging
-from fastapi import Depends
-from app.core.config import settings
-from opensearchpy import OpenSearch, RequestsHttpConnection
-from opensearchpy.exceptions import ConnectionError, ConnectionTimeout
 from dataclasses import dataclass
-
+from opensearchpy import OpenSearch, RequestsHttpConnection
+from opensearchpy.exceptions import (
+    ConnectionError as OpenSearchConnectionError,
+    ConnectionTimeout,
+)
+from app.core.config import settings
 
 
 logging.basicConfig(level=logging.INFO)
@@ -23,15 +24,13 @@ def check_opensearch_healthy(client, timeout=30.0):
     try:
         health = client.cluster.health(wait_for_status="yellow", timeout=timeout)
         status = health["status"]
-        print(f"Health status: {status}")
         if status in ("green", "yellow"):
-            logger.info(f"Кластер готов. Статус: {status}")
+            logger.info("Кластер готов. Статус: %s", status)
             return HealthCheckResult(success=True, reason="OK")
-        else:
-            msg = f"Кластер в состоянии {status}"
-            logger.error(msg)
-            return HealthCheckResult(success=False, reason="UNHEALTHY", details=msg)
-    except (ConnectionError, ConnectionTimeout) as e:
+        msg = f"Кластер в состоянии {status}"
+        logger.error(msg)
+        return HealthCheckResult(success=False, reason="UNHEALTHY", details=msg)
+    except (OpenSearchConnectionError, ConnectionTimeout) as e:
         msg = f"Нет соединения: {type(e).__name__}: {e}"
         logger.error(msg)
         return HealthCheckResult(success=False, reason="UNREACHABLE", details=msg)
@@ -53,7 +52,7 @@ def get_client():
         verify_certs=False,
         ssl_show_warn=False,
         connection_class=RequestsHttpConnection,
-        timeout=30
+        timeout=30,
     )
     health_check = check_opensearch_healthy(client=credentials)
     if health_check.success:

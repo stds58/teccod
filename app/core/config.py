@@ -5,8 +5,6 @@
 import os
 from typing import List
 from functools import lru_cache
-from urllib.parse import urlparse
-from pydantic import field_validator, ConfigDict
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
@@ -34,12 +32,14 @@ class Settings(BaseSettings):
 
     @property
     def CONTENT_TYPE_VALUES(self) -> List[str]:  # pylint: disable=invalid-name
-        return [item.strip() for item in settings.CONTENT_TYPE_VALUESX.split(",") if item.strip()]
-
+        return [
+            item.strip()
+            for item in settings.CONTENT_TYPE_VALUESX.split(",")
+            if item.strip()
+        ]
 
     class Config:  # pylint: disable=too-few-public-methods
         extra = "ignore"
-
 
 
 @lru_cache()

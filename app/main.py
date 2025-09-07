@@ -1,7 +1,7 @@
 from pathlib import Path
 from fastapi import FastAPI, Response, status, Request
-from app.api.v1.base_router import v1_router
 from fastapi.templating import Jinja2Templates
+from app.api.v1.base_router import v1_router
 
 
 app = FastAPI(
@@ -9,7 +9,7 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
-    openapi_url="/api/openapi.json"
+    openapi_url="/api/openapi.json",
 )
 
 app.include_router(v1_router, prefix="/api")
@@ -24,7 +24,6 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 @app.get("/")
 def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
-    #return {"message": "FastAPI + OpenSearch. Use /search to query."}
 
 
 @app.get("/health_check")
